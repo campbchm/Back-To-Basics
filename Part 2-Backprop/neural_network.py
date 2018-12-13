@@ -9,20 +9,30 @@ def sigmoid(x):
 def derivative(x):
     return x * (1 - x)
 
-AND_data = [[[0, 0], 0], 
-            [[0, 1], 0], 
-            [[1, 0], 0], 
-            [[1, 1], 1]]
+AND_data = [[[0, 0], [0]], 
+            [[0, 1], [0]], 
+            [[1, 0], [0]], 
+            [[1, 1], [1]]]
 
-XOR_data = [[[0, 0], 0], 
-            [[0, 1], 1], 
-            [[1, 0], 1], 
-            [[1, 1], 0]]
+OR_data = [[[0, 0], [0]], 
+           [[0, 1], [1]], 
+           [[1, 0], [1]], 
+           [[1, 1], [1]]]
+
+XOR_data = [[[0, 0], [0]], 
+            [[0, 1], [1]], 
+            [[1, 0], [1]], 
+            [[1, 1], [0]]]
+
+IF_data = [[[1, 1], [1]], 
+            [[1, 0], [0]], 
+            [[0, 1], [0]], 
+            [[0, 0], [1]]]
 
 
 class NeuralNetwork():
     def __init__(self, num_inputs, num_hidden_units, num_outputs):
-        self.LEARNING_RATE = 0.1
+        self.LEARNING_RATE = 0.5
         self.EPISODES = 5000
         self.num_inputs = num_inputs
         self.num_hidden_units = num_hidden_units
@@ -61,8 +71,8 @@ class NeuralNetwork():
         
     def back_propogate(self, inputs, output, target):
         # Calculate the error for the output neuron
-        output_error = (target - output[0]) * derivative(output[0])
-        self.error =  output_error
+        output_error = (target[0] - output[0]) * derivative(output[0])
+        self.error = (output[0] - target[0])**2
         
         # Calculate the error for each of the hidden neurons
         for i in range(len(self.hidden_layer.neurons)):
@@ -85,7 +95,37 @@ class NeuralNetwork():
             for i in range(len(hidden_neuron.weights) - 1):
                 hidden_neuron.weights[i] += inputs[i] * hidden_neuron.error * self.LEARNING_RATE
             hidden_neuron.weights[-1] += hidden_neuron.error * self.LEARNING_RATE # bias
-     
+            
+#    def back_propogate(self, inputs, output, target):
+#        # Calculate the error for each output neuron, and the total error
+#        for i in range(len(self.output_layer.neurons)):
+#            self.output_layer.neurons[i].error = (output[i] - target[i])**2
+#            self.error += self.output_layer.neurons[i].error
+#
+#        # Adjust weights going from hidden to output layer
+#        for l in range(len(self.output_layer.neurons)): # iterate through output neurons
+#            for k in range(len(self.hidden_layer.neurons)): # iterate through hidden neurons
+#                delta = (self.output_layer.neurons[l].output*(1-self.output_layer.neurons[l].output)) \
+#                    * 2 * (self.output_layer.neurons[l].output - output[l])
+#                dCdw = delta * self.hidden_layer.neurons[k].output
+#                self.output_layer.neurons[l].weights[k] += self.LEARNING_RATE * dCdw
+#            self.output_layer.neurons[l].weights[-1] += self.LEARNING_RATE * delta
+#                
+#        # Adjust weights going from input to hidden layer
+#        for k in range(len(self.hidden_layer.neurons)):
+#            for j in range(len(self.input_layer.neurons)):
+#                dzdw = inputs[j]
+#                dadzk = self.hidden_layer.neurons[k].output * (1 - self.hidden_layer.neurons[k].output)
+#                path_sum = 0
+#                for l in range(len(self.output_layer.neurons)):
+#                    dzda = self.output_layer.neurons[l].weights[k]
+#                    dadzl = self.output_layer.neurons[l].output*(1-self.output_layer.neurons[l].output)
+#                    dCda = 2*(self.output_layer.neurons[l].output - output[l])
+#                    path_sum += dzda * dadzl * dCda
+#                dCdwh = dzdw * dadzk * path_sum
+#                self.hidden_layer.neurons[k].weights[j] += self.LEARNING_RATE * dCdwh
+#            self.hidden_layer.neurons[k].weights[-1] += self.LEARNING_RATE * dadzk * path_sum
+        
         
     def single_update(self, inputs, target):
         output = self.feed_forward(inputs)
@@ -104,9 +144,10 @@ class NeuralNetwork():
         for i in range(self.EPISODES):
             for sample in data:
                 self.single_update(sample[0], sample[1])
-            if i % 100 == 0:
-                print(i, ":", self.error)
+            if i > 16: #if i % 100 == 0 and i > 99:
                 self.error_list.append(self.error)
+                if i % 500 == 0:
+                    print(i, ":", self.error)
         
         # Final output
         for sample in data:
@@ -128,8 +169,9 @@ class NeuralNetwork():
         
     def plot_error(self):
         fig, ax = plt.subplots()
-        xaxis = [i for i in range(0, self.EPISODES, 100)]
-        ax.plot(xaxis, self.error_list)
+#        xaxis = [i for i in range(100, self.EPISODES, 100)]
+#        ax.plot(xaxis, self.error_list)
+        ax.plot(self.error_list)
         ax.set(xlabel='Training Episodes', ylabel = 'Error',
                title = 'Error during training')
         plt.show()
@@ -192,12 +234,18 @@ class Neuron():
     
 if __name__ == '__main__':
     print("\nTESTING AND\n")
-    ann = NeuralNetwork(2, 4, 1)
+    ann = NeuralNetwork(2, 5, 1)
     ann.train(AND_data)
     ann.plot_error()
+    print("\nTESTING OR\n")
+    ann = NeuralNetwork(2, 5, 1)
+    ann.train(OR_data)
+    ann.plot_error()
+    print("\nTESTING IF\n")
+    ann = NeuralNetwork(2, 5, 1)
+    ann.train(IF_data)
+    ann.plot_error()
     print("\nTESTING XOR\n")
-    ann = NeuralNetwork(2, 4, 1)
+    ann = NeuralNetwork(2, 8, 1)
     ann.train(XOR_data)
     ann.plot_error()
-    
-        
