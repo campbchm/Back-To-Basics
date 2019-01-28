@@ -95,36 +95,6 @@ class NeuralNetwork():
             for i in range(len(hidden_neuron.weights) - 1):
                 hidden_neuron.weights[i] += inputs[i] * hidden_neuron.error * self.LEARNING_RATE
             hidden_neuron.weights[-1] += hidden_neuron.error * self.LEARNING_RATE # bias
-            
-#    def back_propogate(self, inputs, output, target):
-#        # Calculate the error for each output neuron, and the total error
-#        for i in range(len(self.output_layer.neurons)):
-#            self.output_layer.neurons[i].error = (output[i] - target[i])**2
-#            self.error += self.output_layer.neurons[i].error
-#
-#        # Adjust weights going from hidden to output layer
-#        for l in range(len(self.output_layer.neurons)): # iterate through output neurons
-#            for k in range(len(self.hidden_layer.neurons)): # iterate through hidden neurons
-#                delta = (self.output_layer.neurons[l].output*(1-self.output_layer.neurons[l].output)) \
-#                    * 2 * (self.output_layer.neurons[l].output - output[l])
-#                dCdw = delta * self.hidden_layer.neurons[k].output
-#                self.output_layer.neurons[l].weights[k] += self.LEARNING_RATE * dCdw
-#            self.output_layer.neurons[l].weights[-1] += self.LEARNING_RATE * delta
-#                
-#        # Adjust weights going from input to hidden layer
-#        for k in range(len(self.hidden_layer.neurons)):
-#            for j in range(len(self.input_layer.neurons)):
-#                dzdw = inputs[j]
-#                dadzk = self.hidden_layer.neurons[k].output * (1 - self.hidden_layer.neurons[k].output)
-#                path_sum = 0
-#                for l in range(len(self.output_layer.neurons)):
-#                    dzda = self.output_layer.neurons[l].weights[k]
-#                    dadzl = self.output_layer.neurons[l].output*(1-self.output_layer.neurons[l].output)
-#                    dCda = 2*(self.output_layer.neurons[l].output - output[l])
-#                    path_sum += dzda * dadzl * dCda
-#                dCdwh = dzdw * dadzk * path_sum
-#                self.hidden_layer.neurons[k].weights[j] += self.LEARNING_RATE * dCdwh
-#            self.hidden_layer.neurons[k].weights[-1] += self.LEARNING_RATE * dadzk * path_sum
         
         
     def single_update(self, inputs, target):
